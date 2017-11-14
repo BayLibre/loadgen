@@ -115,6 +115,18 @@ static void stop_load(struct context *context)
 
 struct context contexts[MULTITHREAD];
 
+static void usage(const char *prog)
+{
+	printf("Usage: %s\n", prog);
+	puts("  -i iterations (default 10000)\n"
+	     "  -m threads (default 1)\n"
+	     "  -l loops (default 1)\n"
+	     "  -s sleep in ms between loops (default 0)\n"
+	     "  -t tests bitmask (crc32 1, nqueens 2, md5 4, blowfish 8, dhrystone 16, linpack 32)\n"
+	     "  -h help\n");
+	exit(1);
+}
+
 int main (int argc, char **argv)
 {
 	int c;
@@ -129,7 +141,7 @@ int main (int argc, char **argv)
 	int tests = 0xFF;
 
 	opterr = 0;
-	while ((c = getopt (argc, argv, "i:m:l:s:t:")) != -1) {
+	while ((c = getopt (argc, argv, "i:m:l:s:t:?h")) != -1) {
 		switch (c) {
 		case 'i':
 			iterations = atoi(optarg);
@@ -148,6 +160,10 @@ int main (int argc, char **argv)
 		case 't':
 			tests = atoi(optarg);
 			break;	
+		case 'h':
+		case '?':
+		default:
+			usage(argv[0]);
 		}
 	}
 
