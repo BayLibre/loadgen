@@ -13,6 +13,7 @@
 #include "blowfish.h"
 #include "dhrystone.h"
 #include "linpack.h"
+#include "syscalls.h"
 
 #define CRC32_TEST	(1<<0)
 #define NQUEENS_TEST	(1<<1)
@@ -20,6 +21,7 @@
 #define BLOWFISH_TEST	(1<<3)
 #define DHRYSTONE_TEST	(1<<4)
 #define LINPACK_TEST	(1<<5)
+#define SYSCALL_TEST	(1<<6)
 
 static double diff_time(struct timespec *start, struct timespec *end)
 {
@@ -95,6 +97,8 @@ static void *iterate(void *arg)
 				dhryStone(800);
 			if (context->tests & LINPACK_TEST)
 				linpack(1, ARSIZE, context->u.mempool);
+			if (context->tests & SYSCALL_TEST)
+				do_syscalls(100);
 		}
 	}
 	return NULL;
@@ -122,7 +126,7 @@ static void usage(const char *prog)
 	     "  -m threads (default 1)\n"
 	     "  -l loops (default 1)\n"
 	     "  -s sleep in ms between loops (default 0)\n"
-	     "  -t tests bitmask (crc32 1, nqueens 2, md5 4, blowfish 8, dhrystone 16, linpack 32)\n"
+	     "  -t tests bitmask (crc32 1, nqueens 2, md5 4, blowfish 8, dhrystone 16, linpack 32, syscall 64)\n"
 	     "  -h help\n");
 	exit(1);
 }
@@ -169,13 +173,14 @@ int main (int argc, char **argv)
 
 	printf("iterations %d, threads %d, loops %d, sleep %dms\n", 
 	       iterations, multithread, loops, sleep_in_ms);
-	printf("%s%s%s%s%s%s\n",
+	printf("%s%s%s%s%s%s%s\n",
 	     tests & CRC32_TEST ? "crc32 " : "",   
 	     tests & NQUEENS_TEST ? "nqueens " : "",   
 	     tests & MD5_TEST ? "md5 " : "",   
 	     tests & BLOWFISH_TEST ? "blowfish " : "",  
 	     tests & DHRYSTONE_TEST ? "dhrystone " : "",   
-	     tests & LINPACK_TEST ? "linpack " : "");   
+	     tests & LINPACK_TEST ? "linpack " : "",
+	     tests & SYSCALL_TEST ? "syscall " : "");
 	
 	srandom(time(NULL));
 
